@@ -16,6 +16,10 @@ BluetoothSerial SerialBT;
 #define DEBUG_PORT Serial
 #define ELM_PORT   SerialBT
 
+#define LED_BUILTIN 2
+
+uint8_t remoteAddress[] = {0x00,0x1d,0xa5,0x00,0x04,0x5c};
+
 
 void setup()
 {
@@ -23,12 +27,15 @@ void setup()
   digitalWrite(LED_BUILTIN, HIGH);
 
   DEBUG_PORT.begin(115200);
-  ELM_PORT.begin("ESP32test", true);
-  //ELM_PORT.setPin("1234");
+
+  // ELM_PORT.enableSSP();
+  ELM_PORT.setPin("1234");
+  ELM_PORT.begin("ArduHUD", true);
 
   DEBUG_PORT.println("Attempting to connect to ELM327...");
 
-  if (!ELM_PORT.connect("OBDII"))
+  if (!ELM_PORT.connect(remoteAddress))
+  // if (!ELM_PORT.connect("OBDII"))
   {
     DEBUG_PORT.println("Couldn't connect to OBD scanner");
     while(1);
@@ -43,6 +50,7 @@ void setup()
 
 void loop()
 {
+  if (!ELM_PORT.connected()) DEBUG_PORT.println("no connect");
   if(DEBUG_PORT.available())
   {
     char c = DEBUG_PORT.read();

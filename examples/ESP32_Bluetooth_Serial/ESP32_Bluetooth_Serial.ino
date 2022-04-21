@@ -9,6 +9,8 @@ BluetoothSerial SerialBT;
 
 ELM327 myELM327;
 
+uint8_t remoteAddress[] = {0x00,0x1d,0xa5,0x00,0x04,0x5c};
+
 
 uint32_t rpm = 0;
 
@@ -21,10 +23,13 @@ void setup()
 #endif
 
   DEBUG_PORT.begin(115200);
-  //SerialBT.setPin("1234");
+  SerialBT.setPin("1234");
   ELM_PORT.begin("ArduHUD", true);
+
+  DEBUG_PORT.println("begin");
   
-  if (!ELM_PORT.connect("OBDII"))
+  if (!ELM_PORT.connect(remoteAddress))
+  // if (!ELM_PORT.connect("OBDII"))
   {
     DEBUG_PORT.println("Couldn't connect to OBD scanner - Phase 1");
     while(1);
@@ -37,6 +42,13 @@ void setup()
   }
 
   Serial.println("Connected to ELM327");
+
+  Serial.println("Check ECU");
+  myELM327.rpm();
+  if (myELM327.nb_rx_state != ELM_GETTING_MSG){
+    Serial.println("Couldn't connect to ECU");
+    while (1);
+  }
 }
 
 
